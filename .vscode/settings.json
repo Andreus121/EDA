@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "tdamgrafo.h": "c",
+        "tdalistas.h": "c",
+        "bit": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "type_traits": "cpp",
+        "cmath": "cpp",
+        "limits": "cpp",
+        "new": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}

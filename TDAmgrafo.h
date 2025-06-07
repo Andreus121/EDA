@@ -13,22 +13,31 @@ typedef struct matrizGrafo{
 }TDAgrafo;
 
 /*----------------- SCOPE FUNCIONES -----------------*/
-
+//Funciones basicas
 TDAgrafo* crearGrafoVacio(int vertices);
 void mostrarMatrizAdyacencia(TDAgrafo* grafo);
 int adyacenciaNodos(TDAgrafo * grafo, int vertA, int vertB);
-TDAgrafo* leerGrafoNoDirigido(char *nombreArchivo);
 TDAlista* obtenerAdyacentes(TDAgrafo* grafo, int vertice);
+
+//Lectura de grafos
+TDAgrafo* leerGrafoNoDirigidoNoPonderado(char *nombreArchivo);
+TDAgrafo* leerGrafoNoDirigidoPonderado(char *nombreArchivo);
+TDAgrafo* leerGrafoDirigidoNoPonderado(char *nombreArchivo);
+TDAgrafo* leerGrafoDirigidoPonderado(char *nombreArchivo);
+
+//Funciones extra
 int esCamino(TDAgrafo* grafo,TDAlista* camino);
 int esCompleto(TDAgrafo* grafo);
 int esComplemento(TDAgrafo* grafo1, TDAgrafo* grafo2);
 int gradoDeVertice(TDAgrafo* grafo, int vertice);
 int gradoPromedio(TDAgrafo* grafo);
 int esRegular(TDAgrafo* grafo);
-TDAgrafo* leerGrafoDirigidoPonderado(char *nombreArchivo);
-void BSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia);
 
-/*----------------- FUNCIONES -----------------*/
+//Funciones escenciales
+void BSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia);
+void DSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia);
+
+/*----------------- FUNCIONES BASICAS -----------------*/
 
 TDAgrafo* crearGrafoVacio(int vertices){
 	TDAgrafo* grafo = (TDAgrafo*)malloc(sizeof(TDAgrafo));
@@ -63,8 +72,19 @@ int adyacenciaNodos(TDAgrafo * grafo, int vertA, int vertB){
 	return 0;
 }
 
-//NoDirigido NoPonderado
-TDAgrafo* leerGrafoNoDirigido(char *nombreArchivo){
+TDAlista* obtenerAdyacentes(TDAgrafo* grafo, int vertice){
+	TDAlista* L = crearLista();
+	for(int i=0; i < grafo->cantv;i++){
+		if(grafo->MA[vertice][i] == 1){
+			insertarFin(L,i);
+		}
+	}
+	return L;
+}
+
+/*--------------- LECTURA DE GRAFOS ---------------*/
+//Leer grafo no dirigido ni ponderado
+TDAgrafo* leerGrafoNoDirigidoNoPonderado(char *nombreArchivo){
 	FILE*pf;		   //para abrir archivo
 	pf = fopen(nombreArchivo,"r");
 	int n_vertices, m_aristas;
@@ -89,17 +109,83 @@ TDAgrafo* leerGrafoNoDirigido(char *nombreArchivo){
 	}
 }
 
-TDAlista* obtenerAdyacentes(TDAgrafo* grafo, int vertice){
-	TDAlista* L = crearLista();
-	for(int i=0; i < grafo->cantv;i++){
-		if(grafo->MA[vertice][i] == 1){
-			insertarFin(L,i);
-		}
+//Leer grafo no dirigido y ponderado
+TDAgrafo* leerGrafoNoDirigidoPonderado(char *nombreArchivo){
+	FILE*pf;		   //para abrir archivo
+	pf = fopen(nombreArchivo,"r");
+	int n_vertices, m_aristas;
+	int i,j,k,h;
+	if (pf ==NULL){
+		printf("Error de archivo\n");
+		return NULL;
 	}
-	return L;
+	else{
+		//Cantidad de nodos y aristas
+		fscanf(pf, "%d %d", &n_vertices,&m_aristas); 		
+		TDAgrafo *G=crearGrafoVacio(n_vertices);	
+		//dependiendo de las lineas de archivo, 
+		// 1 para grafo no dirigido no ponderado
+		for(k=0;k<m_aristas;k++){
+			fscanf(pf,"%d %d %d",&i, &j,&h);
+			G->MA[i][j] = h;
+			G->MA[j][i] = h;
+		}
+		fclose(pf);
+		return  G;
+	}
 }
 
-/*----------------- IMPLEMENTACION 1 -----------------*/
+//Leer grafo dirigido no ponderado
+TDAgrafo* leerGrafoDirigidoNoPonderado(char *nombreArchivo){
+	FILE*pf;		   
+	pf = fopen(nombreArchivo,"r");
+	int n_vertices, m_aristas;
+	int i,j,k;
+	if (pf ==NULL){
+		printf("Error de archivo\n");
+		return NULL;
+	}
+	else{
+		//Cantidad de nodos y aristas
+		fscanf(pf, "%d %d", &n_vertices,&m_aristas); 		
+		TDAgrafo *G=crearGrafoVacio(n_vertices);	
+		//dependiendo de las lineas de archivo, 
+		// 1 para grafo no dirigido no ponderado
+		for(k=0;k<m_aristas;k++){
+			fscanf(pf,"%d %d",&i, &j);
+			G->MA[i][j] = 1;
+		}
+		fclose(pf);
+		return  G;
+	}
+}
+
+//Leer grafo dirigido y ponderado
+TDAgrafo* leerGrafoDirigidoPonderado(char *nombreArchivo){
+	FILE*pf;		   
+	pf = fopen(nombreArchivo,"r");
+	int n_vertices, m_aristas;
+	int i,j,k,h;
+	if (pf ==NULL){
+		printf("Error de archivo\n");
+		return NULL;
+	}
+	else{
+		//Cantidad de nodos y aristas
+		fscanf(pf, "%d %d", &n_vertices,&m_aristas); 		
+		TDAgrafo *G=crearGrafoVacio(n_vertices);	
+		//dependiendo de las lineas de archivo, 
+		// 1 para grafo no dirigido no ponderado
+		for(k=0;k<m_aristas;k++){
+			fscanf(pf,"%d %d %d",&i, &j,&h);
+			G->MA[i][j] = h;
+		}
+		fclose(pf);
+		return  G;
+	}
+}
+
+/*----------------- FUNCIONES EXTRA -----------------*/
 /*camino es que siguiendo el orden de las aristas se tengan
 todas las aristaas para llegar de inicio a fin*/
 int esCamino(TDAgrafo* grafo,TDAlista* camino){
@@ -116,7 +202,6 @@ int esCamino(TDAgrafo* grafo,TDAlista* camino){
 	return 1;
 }
 
-/*----------------- IMPLEMENTACION 2 -----------------*/
 /*es completo si cada vertice tiene todas sus aristas posibles
 excepto consigo mismo (grafo simple)*/
 int esCompleto(TDAgrafo* grafo){
@@ -130,7 +215,6 @@ int esCompleto(TDAgrafo* grafo){
 	return 1;
 }
 
-/*----------------- IMPLEMENTACION 3 -----------------*/
 /*grafo complemento es aquel que tiene todas las aristas que no tiene el otro
 grafo y le faltan las aristas de este mismo*/
 int esComplemento(TDAgrafo* grafo1, TDAgrafo* grafo2){
@@ -148,7 +232,6 @@ int esComplemento(TDAgrafo* grafo1, TDAgrafo* grafo2){
 	return 1;
 }
 
-/*----------------- IMPLEMENTACION 4 -----------------*/
 int gradoDeVertice(TDAgrafo* grafo, int vertice){
 	int grado = 0;
 	for(int i=0; i<grafo->cantv; i++){
@@ -180,32 +263,7 @@ int esRegular(TDAgrafo* grafo){
 	return 1;
 }
 
-/*----------------- IMPLEMENTACION 5 -----------------*/
-TDAgrafo* leerGrafoDirigidoPonderado(char *nombreArchivo){
-	FILE*pf;		   //para abrir archivo
-	pf = fopen(nombreArchivo,"r");
-	int n_vertices, m_aristas;
-	int i,j,k,h;
-	if (pf ==NULL){
-		printf("Error de archivo\n");
-		return NULL;
-	}
-	else{
-		//Cantidad de nodos y aristas
-		fscanf(pf, "%d %d", &n_vertices,&m_aristas); 		
-		TDAgrafo *G=crearGrafoVacio(n_vertices);	
-		//dependiendo de las lineas de archivo, 
-		// 1 para grafo no dirigido no ponderado
-		for(k=0;k<m_aristas;k++){
-			fscanf(pf,"%d %d %d",&i, &j,&h);
-			G->MA[i][j] = h;
-		}
-		fclose(pf);
-		return  G;
-	}
-}
-
-/*----------------- BSF -----------------*/
+/*----------------- FUNCIONES ESCENCIALES -----------------*/
 //SOLO PARA NO PONDERADOS
 void BSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia){
 	TDAcola* pendientes = crearColaVacia(grafo->cantv);

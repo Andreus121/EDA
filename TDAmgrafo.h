@@ -265,7 +265,7 @@ int esRegular(TDAgrafo* grafo){
 
 /*----------------- FUNCIONES ESCENCIALES -----------------*/
 //SOLO PARA NO PONDERADOS
-void BSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia){
+void bsf(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia){
 	TDAcola* pendientes = crearColaVacia(grafo->cantv);
 	TDAlista* adyacentes;
 	NodoL* ptraux;
@@ -300,7 +300,7 @@ void BSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* prece
 }
 
 /*----------------- DSF -----------------*/
-void DSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia){
+void dsf(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* precedencia){
 	TDApila* pendientes = crearPilaVacia();
 	TDAlista* adyacentes;
 	int temp;
@@ -337,4 +337,66 @@ void DSF(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* prece
 			}
 		}
 	}
+}
+
+/*----------------- DIJKSTRA -----------------*/
+int quedanSinVisitar(int* visitados,int n);
+int extraerMinimo(int* distancias, int* visitados,int n);
+//recorrido minimo a todos los vertices desde el vertice "inicio"
+void dijkstra(TDAgrafo* grafo, int inicio, int* visitados, int* distancias, int* precedencia){
+	
+	for(int i=0; i<grafo->cantv; i++){
+		precedencia[i] = -1;
+		visitados[i] = 0;
+		if(grafo->MA[inicio][i]>0){ //ya que es ponderado coloca las distancias con sus respectivos pesos
+			distancias[i] = grafo->MA[inicio][i];
+			precedencia[i] = inicio;
+		}
+		else{
+			distancias[i] = __INT16_MAX__;
+		}
+	}
+
+	distancias[inicio] = 0;
+	visitados[inicio] = 1;
+	while(quedanSinVisitar(visitados,grafo->cantv)){
+		int vertice = extraerMinimo(distancias,visitados,grafo->cantv);
+		printf("vertice: %d\n",vertice);
+		visitados[vertice] = 1;
+		TDAlista* adyacentes = obtenerAdyacentes(grafo,vertice);
+		NodoL* aux = adyacentes->head;
+		printf("b\n");
+		while(aux!=NULL){
+			//comprobar la distancia minima al vertice que tiene aux
+			if(distancias[aux->dato] > distancias[vertice]+grafo->MA[vertice][aux->dato]){
+				distancias[aux->dato] = distancias[vertice]+grafo->MA[vertice][aux->dato];
+				precedencia[aux->dato] = vertice;
+			}
+			aux = aux->next;
+		}
+	}
+}
+//funciones para dijkstra
+//retorna 1 si queda al menos 1 vertice sin visitar
+int quedanSinVisitar(int* visitados,int n){
+	for(int i= 0; i<n ; i++){
+		if(visitados[i]==0){
+			return 1; //encuentra uno sin visitar
+		}
+	}
+	return 0; //ya todos fueron visitados
+}
+//retorne el vertice con menor distancia
+int extraerMinimo(int* distancias, int* visitados,int n){
+	int minimo = __INT16_MAX__;
+	int vertice = -1;
+	for(int i=0 ; i<n ; i++){
+		if(visitados[i]==0){
+			if(distancias[i]<minimo){
+				minimo = distancias[i];
+				vertice = i;
+			}
+		}
+	}
+	return vertice;
 }

@@ -315,12 +315,9 @@ void dsf(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* prece
 	visitados[inicio] = 0;
 	distancias[inicio] = 0;
 	precedencia[inicio] = -1;
-
 	push(pendientes,inicio);
-
 	while(pendientes->top!=NULL){
 		temp = pop(pendientes);
-
 		if(visitados[temp]== 0){
 			printf("Orden de Visitados: %d\n",temp);
 			visitados[temp] = 1;
@@ -330,6 +327,7 @@ void dsf(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* prece
 			while(ptraux!=NULL){
 				if(visitados[ptraux->dato]==0){
 					push(pendientes,ptraux->dato);
+					visitados[ptraux->dato]=1;
 					distancias[ptraux->dato] = distancias[temp] + 1;
 					precedencia[ptraux->dato] = temp;
 				}
@@ -343,6 +341,7 @@ void dsf(TDAgrafo* grafo, int inicio, int* visitados, int* distancias,int* prece
 int quedanSinVisitar(int* visitados,int n);
 int extraerMinimo(int* distancias, int* visitados,int n);
 //recorrido minimo a todos los vertices desde el vertice "inicio"
+//usado para grafos con pesos
 void dijkstra(TDAgrafo* grafo, int inicio, int* visitados, int* distancias, int* precedencia){
 	
 	for(int i=0; i<grafo->cantv; i++){
